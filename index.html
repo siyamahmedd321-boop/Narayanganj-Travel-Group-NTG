@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Narayanganj Travel Group · round & share</title>
+  <!-- SEO Meta -->
+  <meta name="description" content="Narayanganj Travel Group – upload your travel photos, round corners like a pro, and download. Modern UI, Instagram vibe, free on GitHub Pages.">
+  <meta name="keywords" content="Narayanganj, travel, photo round, corner radius, image editor, GitHub Pages">
+  <link rel="canonical" href="https://yourgithubpages.github.io/narayanganj-travel-group/">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Narayanganj Travel Group">
+  <meta property="og:description" content="Round photo corners & download – travel style.">
+  <meta property="og:type" content="website">
+  <style>
+    /* RESET & GLOBAL */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #0b0b0b;
+      background-image: radial-gradient(circle at 20% 30%, #1e0f3c, #0a0a1a 80%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* main card – glassmorphism + gradient */
+    .app-card {
+      max-width: 720px;
+      width: 100%;
+      background: rgba(10, 10, 20, 0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 48px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(180, 120, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      transition: transform 0.2s ease;
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #a855f7, #3b82f6);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.3);
+      transition: 0.2s;
+    }
+
+    .brand h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #d8b4fe, #93c5fd);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 40px;
+      padding: 6px 18px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #b9b0d4;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      backdrop-filter: blur(4px);
+    }
+
+    /* upload area */
+    .upload-zone {
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px dashed rgba(168, 85, 247, 0.3);
+      border-radius: 36px;
+      padding: 36px 20px;
+      text-align: center;
+      transition: 0.25s ease;
+      cursor: pointer;
+      margin-bottom: 28px;
+      backdrop-filter: blur(2px);
+    }
+
+    .upload-zone:hover {
+      border-color: #a855f7;
+      background: rgba(168, 85, 247, 0.04);
+      transform: scale(1.01);
+    }
+
+    .upload-zone svg {
+      fill: none;
+      stroke: #a78bfa;
+      stroke-width: 2;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .upload-zone p {
+      color: #d4cbf0;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+
+    .upload-zone small {
+      color: #7a6f9c;
+      display: block;
+      margin-top: 8px;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* preview + controls */
+    .preview-container {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 32px;
+      padding: 18px;
+      margin-bottom: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .image-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #0f0f1a;
+      min-height: 200px;
+    }
+
+    #previewImg {
+      max-width: 100%;
+      max-height: 460px;
+      width: auto;
+      height: auto;
+      display: block;
+      border-radius: 20px; /* default, will be overridden by JS */
+      transition: border-radius 0.08s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .slider-section {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      color: #c6b9e6;
+      font-weight: 450;
+      font-size: 0.95rem;
+      letter-spacing: 0.2px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(90deg, #7c3aed, #3b82f6);
+      border-radius: 10px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #c084fc;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.6);
+      transition: 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #a855f7;
+    }
+
+    /* action buttons */
+    .action-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 26px;
+      justify-content: center;
+    }
+
+    .btn {
+      flex: 1 1 140px;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      background: rgba(30, 30, 50, 0.6);
+      backdrop-filter: blur(8px);
+      color: #f0ecff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(145deg, #7c3aed, #4f46e5);
+      border: 1px solid #a78bfa;
+      color: white;
+      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 28px rgba(124, 58, 237, 0.5);
+      background: linear-gradient(145deg, #8b5cf6, #6366f1);
+    }
+
+    .btn-secondary {
+      background: rgba(20, 20, 40, 0.7);
+      border: 1px solid #4b3f6b;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(60, 50, 90, 0.7);
+      transform: translateY(-2px);
+      border-color: #8b7bb8;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ad placeholders */
+    .ad-slot {
+      margin: 28px 0 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 28px;
+      padding: 16px 12px;
+      text-align: center;
+      border: 1px dashed rgba(168, 85, 247, 0.15);
+      backdrop-filter: blur(4px);
+      color: #7b6d9c;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ad-slot .social-bar {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .ad-slot .social-bar span {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 20px;
+      border-radius: 40px;
+      border: 1px solid #2a2342;
+      color: #b4a7d6;
+      font-weight: 400;
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      margin-top: 18px;
+      font-size: 0.7rem;
+      text-align: center;
+      color: #47406a;
+      letter-spacing: 0.4px;
+    }
+
+    /* mobile touches */
+    @media (max-width: 480px) {
+      .app-card { padding: 24px 16px; }
+      .brand h1 { font-size: 1.4rem; }
+      .btn { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-card" role="main">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">
+        <div class="brand-icon">✧</div>
+        <h1>Narayanganj</h1>
+      </div>
+      <span class="badge">⚡ travel group</span>
+    </div>
+
+    <!-- UPLOAD ZONE -->
+    <div class="upload-zone" id="uploadZone">
+      <svg viewBox="0 0 24 24" width="48" height="48">
+        <path d="M12 16v-6m0 0-3 3m3-3 3 3m-9 4h12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <p>Tap to upload your travel photo</p>
+      <small>JPG, PNG · corner radius slider below</small>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <!-- PREVIEW + CORNER CONTROL -->
+    <div class="preview-container">
+      <div class="image-wrapper">
+        <img id="previewImg" src="" alt="Your travel photo preview" style="border-radius: 20px;">
+      </div>
+
+      <div class="slider-section">
+        <div class="slider-label">
+          <span>◈ corner radius</span>
+          <span id="radiusValue">20px</span>
+        </div>
+        <input type="range" id="radiusSlider" min="0" max="80" value="20" step="1">
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-grid">
+      <button class="btn btn-primary" id="downloadBtn">⬇ Download</button>
+      <button class="btn btn-secondary" id="resetBtn">⟲ Reset</button>
+    </div>
+
+    <!-- AD PLACEMENTS (native banner + social bar) -->
+    <div class="ad-slot" id="adContainer">
+      <span style="opacity:0.6;">— native banner —</span>
+      <div style="background: #18182b; width:100%; border-radius:60px; padding:6px 0; margin:4px 0; color:#7b6f9c; font-weight:300;">
+        📸 explore · #NarayanganjTravel
+      </div>
+      <div class="social-bar">
+        <span>📱 instagram</span>
+        <span>🐦 twitter</span>
+        <span>▶ youtube</span>
+      </div>
+      <span style="opacity:0.4; font-size:0.6rem; margin-top:4px;">social bar ads</span>
+    </div>
+
+    <div class="footer">
+      Narayanganj Travel Group · round & share · free on GitHub Pages
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // DOM refs
+      const fileInput = document.getElementById('fileInput');
+      const uploadZone = document.getElementById('uploadZone');
+      const previewImg = document.getElementById('previewImg');
+      const radiusSlider = document.getElementById('radiusSlider');
+      const radiusValue = document.getElementById('radiusValue');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const resetBtn = document.getElementById('resetBtn');
+
+      // State
+      let currentFile = null;        // store file for download
+      let currentRadius = 20;
+
+      // ---------- helpers ----------
+      function setRadius(radius) {
+        currentRadius = radius;
+        previewImg.style.borderRadius = radius + 'px';
+        radiusValue.textContent = radius + 'px';
+        radiusSlider.value = radius;
+      }
+
+      // load image from file
+      function loadImage(file) {
+        if (!file) return;
+        currentFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previewImg.src = e.target.result;
+          // re-apply radius after load
+          setRadius(currentRadius);
+          // reset any error state
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // reset to default (clear image)
+      function resetAll() {
+        previewImg.src = '';
+        currentFile = null;
+        setRadius(20);
+        // clear file input
+        fileInput.value = '';
+        // optional: set placeholder
+      }
+
+      // download rounded image
+      function downloadRounded() {
+        if (!previewImg.src || previewImg.src === '') {
+          alert('Please upload a photo first ✧');
+          return;
+        }
+
+        // create a canvas with the same size as the displayed image (natural size)
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.src = previewImg.src;
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const w = img.naturalWidth || img.width;
+          const h = img.naturalHeight || img.height;
+          canvas.width = w;
+          canvas.height = h;
+
+          // round rect path
+          const r = currentRadius * (w / 500); // scale radius relative to image width (approx)
+          const radius = Math.min(r, Math.min(w, h) / 2); // avoid over-round
+
+          ctx.clearRect(0, 0, w, h);
+          ctx.beginPath();
+          ctx.moveTo(radius, 0);
+          ctx.lineTo(w - radius, 0);
+          ctx.quadraticCurveTo(w, 0, w, radius);
+          ctx.lineTo(w, h - radius);
+          ctx.quadraticCurveTo(w, h, w - radius, h);
+          ctx.lineTo(radius, h);
+          ctx.quadraticCurveTo(0, h, 0, h - radius);
+          ctx.lineTo(0, radius);
+          ctx.quadraticCurveTo(0, 0, radius, 0);
+          ctx.closePath();
+          ctx.clip();
+
+          // draw image
+          ctx.drawImage(img, 0, 0, w, h);
+
+          // download
+          const link = document.createElement('a');
+          link.download = 'rounded-travel-ntg.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+        img.onerror = function() {
+          alert('Error loading image. Please try uploading again.');
+        };
+      }
+
+      // ---------- event listeners ----------
+      // upload via click
+      uploadZone.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'INPUT') {
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+          loadImage(this.files[0]);
+        }
+      });
+
+      // drag & drop (optional but nice)
+      uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.style.borderColor = '#a855f7';
+        uploadZone.style.background = 'rgba(168,85,247,0.08)';
+      });
+      uploadZone.addEventListener('dragleave', () => {
+        uploadZone.style.borderColor = 'rgba(168,85,247,0.3)';
+        uploadZone.style.background = 'rgba(0,0,0,0.3)';
+      });
+      uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.style.borderColor = 'rgba(168,85,247,0.3)';
+        uploadZone.style.background = 'rgba(0,0,0,0.3)';
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          loadImage(e.dataTransfer.files[0]);
+          fileInput.files = e.dataTransfer.files; // sync
+        }
+      });
+
+      // radius slider
+      radiusSlider.addEventListener('input', function() {
+        const val = parseInt(this.value, 10);
+        setRadius(val);
+      });
+
+      // reset
+      resetBtn.addEventListener('click', resetAll);
+
+      // download
+      downloadBtn.addEventListener('click', downloadRounded);
+
+      // init with a subtle default (no image)
+      resetAll();
+
+      // small extra: if user clicks on preview, trigger upload
+      previewImg.addEventListener('click', function() {
+        if (!this.src || this.src === '') {
+          fileInput.click();
+        }
+      });
+
+      // SEO / a11y: set default alt
+      previewImg.alt = 'Narayanganj travel photo preview';
+
+      console.log('✧ Narayanganj Travel Group ready.');
+    })();
+  </script>
+</body>
+</html>
