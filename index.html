@@ -1,554 +1,861 @@
+I've created a complete solution with separate public and admin links, tour booking system, and edit functionality for tours. Now anyone can visit the public website, view tours, book tours, and the admin can manage everything from the admin panel.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Narayanganj Travel Group · round & share</title>
-  <!-- SEO Meta -->
-  <meta name="description" content="Narayanganj Travel Group – upload your travel photos, round corners like a pro, and download. Modern UI, Instagram vibe, free on GitHub Pages.">
-  <meta name="keywords" content="Narayanganj, travel, photo round, corner radius, image editor, GitHub Pages">
-  <link rel="canonical" href="https://yourgithubpages.github.io/narayanganj-travel-group/">
-  <!-- Open Graph -->
-  <meta property="og:title" content="Narayanganj Travel Group">
-  <meta property="og:description" content="Round photo corners & download – travel style.">
-  <meta property="og:type" content="website">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Narayanganj Travel Group (NTG) – Book Your Tour</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
-    /* RESET & GLOBAL */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-      background: #0b0b0b;
-      background-image: radial-gradient(circle at 20% 30%, #1e0f3c, #0a0a1a 80%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    /* main card – glassmorphism + gradient */
-    .app-card {
-      max-width: 720px;
-      width: 100%;
-      background: rgba(10, 10, 20, 0.65);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 48px;
-      padding: 32px 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(180, 120, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      transition: transform 0.2s ease;
-    }
-
-    /* header */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 8px 12px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      background: linear-gradient(135deg, #a855f7, #3b82f6);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: white;
-      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.3);
-      transition: 0.2s;
-    }
-
-    .brand h1 {
-      font-size: 1.7rem;
-      font-weight: 700;
-      background: linear-gradient(to right, #d8b4fe, #93c5fd);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.5px;
-    }
-
-    .badge {
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 40px;
-      padding: 6px 18px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #b9b0d4;
-      border: 1px solid rgba(168, 85, 247, 0.2);
-      backdrop-filter: blur(4px);
-    }
-
-    /* upload area */
-    .upload-zone {
-      background: rgba(0, 0, 0, 0.3);
-      border: 2px dashed rgba(168, 85, 247, 0.3);
-      border-radius: 36px;
-      padding: 36px 20px;
-      text-align: center;
-      transition: 0.25s ease;
-      cursor: pointer;
-      margin-bottom: 28px;
-      backdrop-filter: blur(2px);
-    }
-
-    .upload-zone:hover {
-      border-color: #a855f7;
-      background: rgba(168, 85, 247, 0.04);
-      transform: scale(1.01);
-    }
-
-    .upload-zone svg {
-      fill: none;
-      stroke: #a78bfa;
-      stroke-width: 2;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 12px;
-      opacity: 0.8;
-    }
-
-    .upload-zone p {
-      color: #d4cbf0;
-      font-weight: 500;
-      font-size: 1.1rem;
-    }
-
-    .upload-zone small {
-      color: #7a6f9c;
-      display: block;
-      margin-top: 8px;
-    }
-
-    #fileInput {
-      display: none;
-    }
-
-    /* preview + controls */
-    .preview-container {
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 32px;
-      padding: 18px;
-      margin-bottom: 28px;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-    }
-
-    .image-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 28px;
-      overflow: hidden;
-      background: #0f0f1a;
-      min-height: 200px;
-    }
-
-    #previewImg {
-      max-width: 100%;
-      max-height: 460px;
-      width: auto;
-      height: auto;
-      display: block;
-      border-radius: 20px; /* default, will be overridden by JS */
-      transition: border-radius 0.08s ease;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-    }
-
-    .slider-section {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .slider-label {
-      display: flex;
-      justify-content: space-between;
-      color: #c6b9e6;
-      font-weight: 450;
-      font-size: 0.95rem;
-      letter-spacing: 0.2px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      height: 6px;
-      -webkit-appearance: none;
-      appearance: none;
-      background: linear-gradient(90deg, #7c3aed, #3b82f6);
-      border-radius: 10px;
-      outline: none;
-      transition: 0.2s;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #c084fc;
-      cursor: pointer;
-      border: 2px solid white;
-      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.6);
-      transition: 0.15s;
-    }
-
-    input[type="range"]::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-      background: #a855f7;
-    }
-
-    /* action buttons */
-    .action-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 26px;
-      justify-content: center;
-    }
-
-    .btn {
-      flex: 1 1 140px;
-      padding: 14px 20px;
-      border: none;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 1rem;
-      background: rgba(30, 30, 50, 0.6);
-      backdrop-filter: blur(8px);
-      color: #f0ecff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: 0.2s ease;
-      border: 1px solid rgba(168, 85, 247, 0.2);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-primary {
-      background: linear-gradient(145deg, #7c3aed, #4f46e5);
-      border: 1px solid #a78bfa;
-      color: white;
-      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 12px 28px rgba(124, 58, 237, 0.5);
-      background: linear-gradient(145deg, #8b5cf6, #6366f1);
-    }
-
-    .btn-secondary {
-      background: rgba(20, 20, 40, 0.7);
-      border: 1px solid #4b3f6b;
-    }
-
-    .btn-secondary:hover {
-      background: rgba(60, 50, 90, 0.7);
-      transform: translateY(-2px);
-      border-color: #8b7bb8;
-    }
-
-    .btn:active {
-      transform: scale(0.96);
-    }
-
-    /* ad placeholders */
-    .ad-slot {
-      margin: 28px 0 16px;
-      background: rgba(0, 0, 0, 0.25);
-      border-radius: 28px;
-      padding: 16px 12px;
-      text-align: center;
-      border: 1px dashed rgba(168, 85, 247, 0.15);
-      backdrop-filter: blur(4px);
-      color: #7b6d9c;
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .ad-slot .social-bar {
-      display: flex;
-      gap: 28px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-
-    .ad-slot .social-bar span {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 6px 20px;
-      border-radius: 40px;
-      border: 1px solid #2a2342;
-      color: #b4a7d6;
-      font-weight: 400;
-      font-size: 0.9rem;
-    }
-
-    .footer {
-      margin-top: 18px;
-      font-size: 0.7rem;
-      text-align: center;
-      color: #47406a;
-      letter-spacing: 0.4px;
-    }
-
-    /* mobile touches */
-    @media (max-width: 480px) {
-      .app-card { padding: 24px 16px; }
-      .brand h1 { font-size: 1.4rem; }
-      .btn { flex: 1 1 100%; }
-    }
+    * { user-select: none; -webkit-user-select: none; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f9ff; }
+    .bg-ntg-blue { background: #0b2b5c; }
+    .bg-ntg-orange { background: #f47b20; }
+    .text-ntg-orange { color: #f47b20; }
+    .shadow-premium { box-shadow: 0 12px 40px rgba(11,43,92,0.08); }
+    .card-hover { transition: all 0.25s ease; }
+    .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(11,43,92,0.12); }
+    .floating-wa { position: fixed; bottom: 90px; right: 16px; z-index: 999; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: white; border-top: 1px solid #e5eefb; }
+    .bottom-nav a { font-size: 12px; color: #4b5a7a; }
+    .bottom-nav a.active { color: #f47b20; }
+    .sticky-header { position: sticky; top: 0; z-index: 40; background: white; box-shadow: 0 2px 16px rgba(0,0,0,0.04); }
+    .dark .bottom-nav { background: #1a253b; border-top-color: #2a3a5a; }
+    .dark .bottom-nav a { color: #a0b3d9; }
+    .dark .bottom-nav a.active { color: #f47b20; }
+    .dark .sticky-header { background: #162035; }
+    .dark body { background: #0e1629; color: #e6edf5; }
+    .dark .bg-white { background: #1d2a42; }
+    .dark .bg-gray-50 { background: #182237; }
+    .dark .text-gray-600 { color: #b8c9e6; }
+    .dark .text-gray-700 { color: #d0def5; }
+    .dark .border-gray-200 { border-color: #2c3d5a; }
+    .dark .shadow-premium { box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    .toast { position: fixed; top: 20px; right: 20px; background: #0b2b5c; color: white; padding: 14px 24px; border-radius: 60px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 9999; transition: all 0.3s; }
+    #loader { position: fixed; inset:0; background:#0b2b5c; display:flex; align-items:center; justify-content:center; z-index:99999; transition: opacity 0.5s; }
+    #loader i { font-size: 48px; color: #f47b20; animation: spin 1s infinite linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; padding: 24px; border-radius: 20px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .dark .modal-content { background: #1d2a42; }
+    .admin-panel { display: none; }
+    .admin-panel.active { display: block; }
+    .user-panel { display: block; }
+    .user-panel.hidden { display: none; }
+    .profile-pic { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #f47b20; }
+    .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
+    .file-input-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+    .preview-img { max-width: 200px; max-height: 150px; object-fit: cover; border-radius: 10px; margin-top: 8px; }
+    .password-hidden { -webkit-text-security: disc; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .gallery-item { position: relative; border-radius: 12px; overflow: hidden; }
+    .gallery-item img { width: 100%; height: 150px; object-fit: cover; }
+    .gallery-item .delete-btn { position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; }
+    .admin-link-badge { background: #f47b20; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
+    .booking-card { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid #f47b20; }
+    .dark .booking-card { background: #263450; }
   </style>
 </head>
-<body>
-  <div class="app-card" role="main">
+<body class="no-zoom antialiased">
 
-    <!-- HEADER -->
-    <div class="header">
-      <div class="brand">
-        <div class="brand-icon">✧</div>
-        <h1>Narayanganj</h1>
-      </div>
-      <span class="badge">⚡ travel group</span>
-    </div>
+<!-- LOADING SCREEN -->
+<div id="loader"><i class="fas fa-plane-departure"></i></div>
 
-    <!-- UPLOAD ZONE -->
-    <div class="upload-zone" id="uploadZone">
-      <svg viewBox="0 0 24 24" width="48" height="48">
-        <path d="M12 16v-6m0 0-3 3m3-3 3 3m-9 4h12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.5"/>
-      </svg>
-      <p>Tap to upload your travel photo</p>
-      <small>JPG, PNG · corner radius slider below</small>
-      <input type="file" id="fileInput" accept="image/*">
-    </div>
+<!-- STICKY HEADER -->
+<header class="sticky-header px-4 py-3 flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <i class="fas fa-umbrella-beach text-ntg-orange text-xl"></i>
+    <span class="font-bold text-lg text-ntg-blue dark:text-white">NTG</span>
+    <span class="admin-link-badge"><i class="fas fa-globe"></i> Public</span>
+  </div>
+  <div class="flex items-center gap-4">
+    <i class="fas fa-search text-gray-500 dark:text-gray-300 text-lg"></i>
+    <button id="darkToggle" class="text-gray-600 dark:text-gray-300 text-xl"><i class="fas fa-moon"></i></button>
+    <a href="?admin=true" class="bg-ntg-orange text-white px-4 py-1 rounded-full text-sm font-semibold"><i class="fas fa-user-shield mr-1"></i> Admin</a>
+  </div>
+</header>
 
-    <!-- PREVIEW + CORNER CONTROL -->
-    <div class="preview-container">
-      <div class="image-wrapper">
-        <img id="previewImg" src="" alt="Your travel photo preview" style="border-radius: 20px;">
-      </div>
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav flex justify-around items-center py-2 px-2">
+  <a href="#" class="active flex flex-col items-center" data-section="home"><i class="fas fa-home text-xl"></i><span>Home</span></a>
+  <a href="#" class="flex flex-col items-center" data-section="explore"><i class="fas fa-search-location text-xl"></i><span>Explore</span></a>
+  <a href="#" class="flex flex-col items-center" data-section="upcoming"><i class="fas fa-calendar-alt text-xl"></i><span>Upcoming</span></a>
+  <a href="#" class="flex flex-col items-center" data-section="contact"><i class="fas fa-headset text-xl"></i><span>Contact</span></a>
+</nav>
 
-      <div class="slider-section">
-        <div class="slider-label">
-          <span>◈ corner radius</span>
-          <span id="radiusValue">20px</span>
+<!-- MAIN CONTENT -->
+<main class="pb-28 px-4 max-w-6xl mx-auto">
+
+  <!-- USER PANEL (PUBLIC) -->
+  <div id="userPanel" class="user-panel">
+    <!-- HERO BANNER -->
+    <section class="relative mt-3 rounded-3xl overflow-hidden shadow-premium">
+      <div class="hero-slide bg-gradient-to-r from-ntg-blue to-blue-800 text-white p-8 flex items-center" style="min-height:220px;">
+        <div>
+          <span class="bg-ntg-orange px-4 py-1 rounded-full text-sm font-semibold">Summer Special</span>
+          <h2 class="text-2xl font-bold mt-2">Sundarbans Adventure</h2>
+          <p class="text-blue-100 text-sm">Explore the Royal Bengal Tiger & mangrove forest</p>
+          <button class="mt-3 bg-white text-ntg-blue px-6 py-2 rounded-full font-semibold text-sm shadow">View Tour</button>
         </div>
-        <input type="range" id="radiusSlider" min="0" max="80" value="20" step="1">
       </div>
-    </div>
-
-    <!-- ACTION BUTTONS -->
-    <div class="action-grid">
-      <button class="btn btn-primary" id="downloadBtn">⬇ Download</button>
-      <button class="btn btn-secondary" id="resetBtn">⟲ Reset</button>
-    </div>
-
-    <!-- AD PLACEMENTS (native banner + social bar) -->
-    <div class="ad-slot" id="adContainer">
-      <span style="opacity:0.6;">— native banner —</span>
-      <div style="background: #18182b; width:100%; border-radius:60px; padding:6px 0; margin:4px 0; color:#7b6f9c; font-weight:300;">
-        📸 explore · #NarayanganjTravel
+      <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-white opacity-60"></span>
+        <span class="w-2 h-2 rounded-full bg-ntg-orange"></span>
+        <span class="w-2 h-2 rounded-full bg-white opacity-60"></span>
       </div>
-      <div class="social-bar">
-        <span>📱 instagram</span>
-        <span>🐦 twitter</span>
-        <span>▶ youtube</span>
-      </div>
-      <span style="opacity:0.4; font-size:0.6rem; margin-top:4px;">social bar ads</span>
-    </div>
+    </section>
 
-    <div class="footer">
-      Narayanganj Travel Group · round & share · free on GitHub Pages
+    <!-- SEARCH -->
+    <section class="mt-6 bg-white dark:bg-[#1d2a42] p-4 rounded-2xl shadow-premium">
+      <div class="flex flex-wrap gap-3 items-center">
+        <input type="text" id="searchInput" placeholder="Search tours..." class="flex-1 min-w-[140px] p-3 rounded-full border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-[#263450] dark:text-white text-sm">
+        <button id="searchBtn" class="bg-ntg-orange text-white px-6 py-3 rounded-full text-sm font-semibold"><i class="fas fa-search mr-1"></i> Search</button>
+      </div>
+    </section>
+
+    <!-- TOURS LIST -->
+    <section class="mt-8" id="tourList">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold text-ntg-blue dark:text-white"><i class="fas fa-star text-ntg-orange mr-2"></i>Featured Tours</h3>
+        <a href="#" class="text-ntg-orange text-sm font-medium">See all</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-4" id="toursContainer">
+        <!-- Tours will be dynamically loaded here -->
+      </div>
+    </section>
+
+    <!-- UPCOMING -->
+    <section class="mt-10">
+      <h3 class="text-xl font-bold text-ntg-blue dark:text-white"><i class="fas fa-calendar-check text-ntg-orange mr-2"></i>Upcoming Tours</h3>
+      <div class="mt-3 flex gap-4 overflow-x-auto pb-2" id="upcomingContainer">
+        <!-- Upcoming tours dynamically loaded -->
+      </div>
+    </section>
+
+    <!-- REVIEWS & GALLERY -->
+    <section class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-xl font-bold text-ntg-blue dark:text-white"><i class="fas fa-star text-ntg-orange mr-2"></i>Reviews</h3>
+        <div class="bg-white dark:bg-[#1d2a42] p-4 rounded-2xl shadow-premium mt-2">
+          <p class="text-sm"><i class="fas fa-quote-left text-ntg-orange"></i> Amazing Sundarbans tour! Guide was excellent.</p>
+          <p class="text-xs text-gray-400 mt-1">– Rahim, Dhaka</p>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold text-ntg-blue dark:text-white"><i class="fas fa-images text-ntg-orange mr-2"></i>Gallery</h3>
+        <div id="userGallery" class="gallery-grid mt-2">
+          <!-- Gallery images will be loaded here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="mt-10 bg-white dark:bg-[#1d2a42] p-6 rounded-2xl shadow-premium">
+      <h3 class="text-xl font-bold text-ntg-blue dark:text-white"><i class="fas fa-info-circle text-ntg-orange mr-2"></i>About NTG</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Narayanganj Travel Group – premium travel experiences since 2015.</p>
+      <div class="flex flex-wrap gap-4 mt-4 text-sm">
+        <a href="https://wa.me/8801627340487" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-full"><i class="fab fa-whatsapp mr-1"></i> WhatsApp: 01627340487</a>
+        <a href="https://www.facebook.com/share/1HKPMnSXnf/" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-full"><i class="fab fa-facebook"></i> Facebook Page</a>
+        <a href="#" class="bg-gray-700 text-white px-4 py-2 rounded-full"><i class="fas fa-envelope"></i> Email</a>
+      </div>
+      <div class="mt-4 text-sm text-gray-500 dark:text-gray-300"><i class="fas fa-phone-alt text-ntg-orange mr-1"></i> +880 1627-340487</div>
+    </section>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel" class="admin-panel mt-4">
+    <div class="bg-white dark:bg-[#1d2a42] p-6 rounded-2xl shadow-premium">
+      <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+        <h2 class="text-2xl font-bold text-ntg-blue dark:text-white"><i class="fas fa-user-shield text-ntg-orange mr-2"></i>Admin Dashboard</h2>
+        <div class="flex gap-2">
+          <a href="?" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm"><i class="fas fa-globe mr-1"></i> View Public Site</a>
+          <button id="profileBtn" class="bg-ntg-blue text-white px-4 py-2 rounded-full text-sm"><i class="fas fa-user-edit mr-1"></i> Profile</button>
+          <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded-full text-sm"><i class="fas fa-sign-out-alt mr-1"></i> Logout</button>
+        </div>
+      </div>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-ntg-blue text-white p-4 rounded-xl"><i class="fas fa-plane"></i> <span class="block text-2xl font-bold" id="totalTours">0</span> Tours</div>
+        <div class="bg-ntg-orange text-white p-4 rounded-xl"><i class="fas fa-bookmark"></i> <span class="block text-2xl font-bold" id="totalBookings">0</span> Bookings</div>
+        <div class="bg-green-600 text-white p-4 rounded-xl"><i class="fas fa-star"></i> <span class="block text-2xl font-bold">8</span> Reviews</div>
+        <div class="bg-purple-600 text-white p-4 rounded-xl"><i class="fas fa-images"></i> <span class="block text-2xl font-bold" id="totalGallery">0</span> Gallery</div>
+      </div>
+
+      <!-- Bookings Section -->
+      <div class="bg-gray-50 dark:bg-[#263450] p-4 rounded-xl mb-6">
+        <h4 class="font-bold text-ntg-blue dark:text-white mb-3"><i class="fas fa-bookmark text-ntg-orange mr-2"></i>Tour Bookings</h4>
+        <div id="bookingsContainer">
+          <!-- Bookings will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Add Tour Form -->
+      <div class="bg-gray-50 dark:bg-[#263450] p-4 rounded-xl mb-6">
+        <h4 class="font-bold text-ntg-blue dark:text-white mb-3"><i class="fas fa-plus-circle text-ntg-orange mr-2"></i>Add New Tour</h4>
+        <form id="tourForm" class="grid grid-cols-1 md:grid-cols-2 gap-4" enctype="multipart/form-data">
+          <input type="hidden" id="editTourId" value="">
+          <input type="text" id="tourTitle" placeholder="Tour Title" class="p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+          <input type="text" id="tourLocation" placeholder="Location" class="p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+          <input type="text" id="tourDuration" placeholder="Duration (e.g. 3 Days)" class="p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+          <input type="text" id="tourDate" placeholder="Departure Date (e.g. 15 Dec 2026)" class="p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+          <input type="number" id="tourPrice" placeholder="Price (৳)" class="p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+          
+          <div class="file-input-wrapper">
+            <button type="button" class="bg-ntg-blue text-white px-4 py-3 rounded-xl w-full"><i class="fas fa-upload mr-2"></i> Upload Image</button>
+            <input type="file" id="tourImage" accept="image/*">
+          </div>
+          <div id="imagePreview" class="md:col-span-2"></div>
+          
+          <textarea id="tourDesc" placeholder="Short description" class="p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white md:col-span-2" rows="2" required></textarea>
+          <button type="submit" class="bg-ntg-orange text-white px-6 py-3 rounded-xl font-semibold md:col-span-2"><i class="fas fa-save mr-2"></i> <span id="formSubmitText">Save Tour</span></button>
+        </form>
+      </div>
+
+      <!-- Gallery Management -->
+      <div class="bg-gray-50 dark:bg-[#263450] p-4 rounded-xl mb-6">
+        <h4 class="font-bold text-ntg-blue dark:text-white mb-3"><i class="fas fa-images text-ntg-orange mr-2"></i>Gallery Management</h4>
+        <div class="flex flex-wrap gap-4 mb-4">
+          <div class="file-input-wrapper">
+            <button type="button" class="bg-ntg-orange text-white px-4 py-2 rounded-xl"><i class="fas fa-plus mr-2"></i> Add Gallery Image</button>
+            <input type="file" id="galleryImageInput" accept="image/*">
+          </div>
+        </div>
+        <div id="adminGallery" class="gallery-grid">
+          <!-- Gallery images will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Tours Table -->
+      <div class="overflow-x-auto">
+        <h4 class="font-bold text-ntg-blue dark:text-white mb-3"><i class="fas fa-list text-ntg-orange mr-2"></i>All Tours</h4>
+        <table class="w-full text-sm">
+          <thead class="bg-ntg-blue text-white">
+            <tr><th class="p-2 text-left">Image</th><th class="p-2 text-left">Title</th><th class="p-2 text-left">Location</th><th class="p-2 text-left">Price</th><th class="p-2 text-left">Actions</th></tr>
+          </thead>
+          <tbody id="adminToursTable" class="dark:text-white"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <script>
-    (function() {
-      "use strict";
+  <!-- FLOATING WHATSAPP -->
+  <a href="https://wa.me/8801627340487?text=Hello%20NTG,%20I%20want%20to%20book%20this%20tour." target="_blank" class="floating-wa bg-green-500 text-white p-4 rounded-full shadow-xl flex items-center justify-center w-14 h-14">
+    <i class="fab fa-whatsapp text-3xl"></i>
+  </a>
+</main>
 
-      // DOM refs
-      const fileInput = document.getElementById('fileInput');
-      const uploadZone = document.getElementById('uploadZone');
-      const previewImg = document.getElementById('previewImg');
-      const radiusSlider = document.getElementById('radiusSlider');
-      const radiusValue = document.getElementById('radiusValue');
-      const downloadBtn = document.getElementById('downloadBtn');
-      const resetBtn = document.getElementById('resetBtn');
+<!-- BOOKING MODAL -->
+<div id="bookingModal" class="modal">
+  <div class="modal-content">
+    <h3 class="text-2xl font-bold text-ntg-blue dark:text-white mb-4"><i class="fas fa-calendar-check text-ntg-orange mr-2"></i>Book This Tour</h3>
+    <form id="bookingForm">
+      <input type="hidden" id="bookingTourId" value="">
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tour Name</label>
+        <input type="text" id="bookingTourName" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700" disabled>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Your Name *</label>
+        <input type="text" id="bookingName" placeholder="Enter your full name" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number *</label>
+        <input type="tel" id="bookingPhone" placeholder="Enter your phone number" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Number of People *</label>
+        <input type="number" id="bookingPeople" placeholder="How many people?" min="1" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" required>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Special Request (Optional)</label>
+        <textarea id="bookingRequest" placeholder="Any special requests?" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white" rows="2"></textarea>
+      </div>
+      <button type="submit" class="bg-ntg-orange text-white w-full py-3 rounded-xl font-semibold"><i class="fas fa-paper-plane mr-2"></i> Submit Booking</button>
+    </form>
+    <button id="closeBooking" class="mt-3 text-gray-500 w-full"><i class="fas fa-times"></i> Cancel</button>
+  </div>
+</div>
 
-      // State
-      let currentFile = null;        // store file for download
-      let currentRadius = 20;
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <h3 class="text-2xl font-bold text-ntg-blue dark:text-white mb-4"><i class="fas fa-lock text-ntg-orange mr-2"></i>Admin Login</h3>
+    <form id="loginForm">
+      <input type="password" id="adminPassword" placeholder="Enter admin password" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white mb-4" required>
+      <button type="submit" class="bg-ntg-blue text-white w-full py-3 rounded-xl font-semibold"><i class="fas fa-sign-in-alt mr-2"></i> Login</button>
+    </form>
+    <p class="text-xs text-gray-400 mt-3 text-center">Default password: admin123</p>
+    <button id="closeLogin" class="mt-3 text-gray-500 w-full"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
 
-      // ---------- helpers ----------
-      function setRadius(radius) {
-        currentRadius = radius;
-        previewImg.style.borderRadius = radius + 'px';
-        radiusValue.textContent = radius + 'px';
-        radiusSlider.value = radius;
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal">
+  <div class="modal-content">
+    <h3 class="text-2xl font-bold text-ntg-blue dark:text-white mb-4"><i class="fas fa-user-cog text-ntg-orange mr-2"></i>Profile Settings</h3>
+    <div class="text-center mb-4">
+      <img id="profilePic" src="https://ui-avatars.com/api/?name=Admin&background=f47b20&color=fff&size=80" alt="Profile" class="profile-pic mx-auto">
+      <div class="file-input-wrapper mt-2">
+        <button type="button" class="bg-ntg-blue text-white px-4 py-2 rounded-full text-sm"><i class="fas fa-camera mr-1"></i> Change Photo</button>
+        <input type="file" id="profileImageInput" accept="image/*">
+      </div>
+    </div>
+    <form id="profileForm">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Admin Name</label>
+        <input type="text" id="adminName" value="Admin" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password (leave blank to keep current)</label>
+        <input type="password" id="newPassword" placeholder="Enter new password" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-[#1d2a42] dark:text-white">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
+        <input type="password" id="currentPasswordDisplay" value="admin123" class="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed password-hidden" disabled>
+      </div>
+      <button type="submit" class="bg-ntg-orange text-white w-full py-3 rounded-xl font-semibold"><i class="fas fa-save mr-2"></i> Update Profile</button>
+    </form>
+    <button id="closeProfile" class="mt-3 text-gray-500 w-full"><i class="fas fa-times"></i> Close</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"><i class="fas fa-check-circle mr-2"></i> <span id="toastMsg">Done</span></div>
+
+<!-- BACK TO TOP -->
+<button id="backTop" class="fixed bottom-32 right-4 bg-ntg-blue text-white p-3 rounded-full shadow-lg hidden"><i class="fas fa-arrow-up"></i></button>
+
+<script>
+  (function() {
+    // Check if admin mode is enabled via URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdminMode = urlParams.get('admin') === 'true';
+
+    // Disable right click, shortcuts, zoom
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+        e.preventDefault(); return false;
       }
+    });
+    document.addEventListener('wheel', function(e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
 
-      // load image from file
-      function loadImage(file) {
-        if (!file) return;
-        currentFile = file;
+    // Dark mode
+    document.getElementById('darkToggle').addEventListener('click', function() {
+      document.documentElement.classList.toggle('dark');
+      this.querySelector('i').classList.toggle('fa-moon');
+      this.querySelector('i').classList.toggle('fa-sun');
+    });
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      t.classList.remove('hidden');
+      setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+
+    // Load data from localStorage
+    function loadData() {
+      const savedTours = localStorage.getItem('ntg_tours');
+      const savedGallery = localStorage.getItem('ntg_gallery');
+      const savedPassword = localStorage.getItem('ntg_password');
+      const savedName = localStorage.getItem('ntg_adminName');
+      const savedProfilePic = localStorage.getItem('ntg_profilePic');
+      const savedBookings = localStorage.getItem('ntg_bookings');
+
+      if (savedTours) {
+        tours = JSON.parse(savedTours);
+        nextId = tours.length > 0 ? Math.max(...tours.map(t => t.id)) + 1 : 1;
+      }
+      if (savedGallery) {
+        galleryImages = JSON.parse(savedGallery);
+      }
+      if (savedPassword) {
+        adminPassword = savedPassword;
+      }
+      if (savedName) {
+        adminName = savedName;
+      }
+      if (savedProfilePic) {
+        adminProfilePic = savedProfilePic;
+      }
+      if (savedBookings) {
+        bookings = JSON.parse(savedBookings);
+      }
+    }
+
+    // Save data to localStorage
+    function saveData() {
+      localStorage.setItem('ntg_tours', JSON.stringify(tours));
+      localStorage.setItem('ntg_gallery', JSON.stringify(galleryImages));
+      localStorage.setItem('ntg_password', adminPassword);
+      localStorage.setItem('ntg_adminName', adminName);
+      localStorage.setItem('ntg_profilePic', adminProfilePic);
+      localStorage.setItem('ntg_bookings', JSON.stringify(bookings));
+    }
+
+    // Data store
+    let tours = [];
+    let nextId = 1;
+    let galleryImages = [];
+    let bookings = [];
+    let adminPassword = 'admin123';
+    let adminName = 'Admin';
+    let adminProfilePic = 'https://ui-avatars.com/api/?name=Admin&background=f47b20&color=fff&size=80';
+
+    // Load saved data
+    loadData();
+
+    // If no tours exist, add default tours
+    if (tours.length === 0) {
+      tours = [
+        { id: 1, title: 'Sundarbans Safari', location: 'Khulna', duration: '3 Days', date: '15 Dec 2026', price: 8500, image: 'https://picsum.photos/seed/tour1/400/250', desc: 'Explore the world\'s largest mangrove forest with wildlife safari.' },
+        { id: 2, title: 'Cox\'s Bazar Beach', location: 'Cox\'s Bazar', duration: '2 Days', date: '20 Dec 2026', price: 6200, image: 'https://picsum.photos/seed/tour2/400/250', desc: 'World\'s longest sea beach with serene sunset and marine drive.' },
+        { id: 3, title: 'Sylhet Tea Garden', location: 'Sylhet', duration: '2 Days', date: '5 Jan 2027', price: 4900, image: 'https://picsum.photos/seed/tour3/400/250', desc: 'Rolling tea hills, lush green landscapes & Jaflong.' }
+      ];
+      nextId = 4;
+      saveData();
+    }
+
+    // If no gallery images exist, add default ones
+    if (galleryImages.length === 0) {
+      galleryImages = [
+        'https://picsum.photos/seed/g1/300/200',
+        'https://picsum.photos/seed/g2/300/200',
+        'https://picsum.photos/seed/g3/300/200',
+        'https://picsum.photos/seed/g4/300/200',
+        'https://picsum.photos/seed/g5/300/200',
+        'https://picsum.photos/seed/g6/300/200'
+      ];
+      saveData();
+    }
+
+    // Image preview for tour
+    document.getElementById('tourImage').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
         const reader = new FileReader();
-        reader.onload = (e) => {
-          previewImg.src = e.target.result;
-          // re-apply radius after load
-          setRadius(currentRadius);
-          // reset any error state
+        reader.onload = function(event) {
+          document.getElementById('imagePreview').innerHTML = `<img src="${event.target.result}" class="preview-img" alt="Preview">`;
         };
         reader.readAsDataURL(file);
       }
+    });
 
-      // reset to default (clear image)
-      function resetAll() {
-        previewImg.src = '';
-        currentFile = null;
-        setRadius(20);
-        // clear file input
-        fileInput.value = '';
-        // optional: set placeholder
-      }
-
-      // download rounded image
-      function downloadRounded() {
-        if (!previewImg.src || previewImg.src === '') {
-          alert('Please upload a photo first ✧');
-          return;
-        }
-
-        // create a canvas with the same size as the displayed image (natural size)
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.src = previewImg.src;
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const w = img.naturalWidth || img.width;
-          const h = img.naturalHeight || img.height;
-          canvas.width = w;
-          canvas.height = h;
-
-          // round rect path
-          const r = currentRadius * (w / 500); // scale radius relative to image width (approx)
-          const radius = Math.min(r, Math.min(w, h) / 2); // avoid over-round
-
-          ctx.clearRect(0, 0, w, h);
-          ctx.beginPath();
-          ctx.moveTo(radius, 0);
-          ctx.lineTo(w - radius, 0);
-          ctx.quadraticCurveTo(w, 0, w, radius);
-          ctx.lineTo(w, h - radius);
-          ctx.quadraticCurveTo(w, h, w - radius, h);
-          ctx.lineTo(radius, h);
-          ctx.quadraticCurveTo(0, h, 0, h - radius);
-          ctx.lineTo(0, radius);
-          ctx.quadraticCurveTo(0, 0, radius, 0);
-          ctx.closePath();
-          ctx.clip();
-
-          // draw image
-          ctx.drawImage(img, 0, 0, w, h);
-
-          // download
-          const link = document.createElement('a');
-          link.download = 'rounded-travel-ntg.png';
-          link.href = canvas.toDataURL('image/png');
-          link.click();
+    // Gallery image upload
+    document.getElementById('galleryImageInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          galleryImages.push(event.target.result);
+          saveData();
+          renderGallery();
+          showToast('Gallery image added successfully!');
         };
-        img.onerror = function() {
-          alert('Error loading image. Please try uploading again.');
-        };
+        reader.readAsDataURL(file);
       }
+      this.value = '';
+    });
 
-      // ---------- event listeners ----------
-      // upload via click
-      uploadZone.addEventListener('click', function(e) {
-        if (e.target.tagName !== 'INPUT') {
-          fileInput.click();
+    // Profile image upload
+    document.getElementById('profileImageInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          adminProfilePic = event.target.result;
+          document.getElementById('profilePic').src = adminProfilePic;
+          saveData();
+          showToast('Profile photo updated successfully!');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Render gallery
+    function renderGallery() {
+      const adminGallery = document.getElementById('adminGallery');
+      const userGallery = document.getElementById('userGallery');
+      
+      const galleryHTML = galleryImages.map((img, index) => `
+        <div class="gallery-item">
+          <img src="${img}" alt="Gallery ${index + 1}" loading="lazy">
+          <button onclick="deleteGalleryImage(${index})" class="delete-btn"><i class="fas fa-times"></i></button>
+        </div>
+      `).join('');
+
+      adminGallery.innerHTML = galleryHTML || '<p class="text-gray-500 col-span-full">No gallery images yet. Add some!</p>';
+      userGallery.innerHTML = galleryImages.map(img => `
+        <div class="gallery-item">
+          <img src="${img}" alt="Gallery" loading="lazy" class="rounded-xl">
+        </div>
+      `).join('') || '<p class="text-gray-500">No gallery images yet.</p>';
+      
+      document.getElementById('totalGallery').textContent = galleryImages.length;
+    }
+
+    // Delete gallery image
+    window.deleteGalleryImage = function(index) {
+      if (confirm('Delete this gallery image?')) {
+        galleryImages.splice(index, 1);
+        saveData();
+        renderGallery();
+        showToast('Gallery image deleted!');
+      }
+    };
+
+    // Render bookings
+    function renderBookings() {
+      const container = document.getElementById('bookingsContainer');
+      if (bookings.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No bookings yet.</p>';
+        document.getElementById('totalBookings').textContent = '0';
+        return;
+      }
+      
+      container.innerHTML = bookings.map((b, index) => `
+        <div class="booking-card">
+          <div class="flex justify-between items-start">
+            <div>
+              <strong>${b.name}</strong> - ${b.tourName}
+              <div class="text-xs text-gray-500">📞 ${b.phone} | 👥 ${b.people} people</div>
+              <div class="text-xs text-gray-400">${b.request || 'No special requests'}</div>
+            </div>
+            <button onclick="deleteBooking(${index})" class="text-red-500"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('totalBookings').textContent = bookings.length;
+    }
+
+    // Delete booking
+    window.deleteBooking = function(index) {
+      if (confirm('Delete this booking?')) {
+        bookings.splice(index, 1);
+        saveData();
+        renderBookings();
+        showToast('Booking deleted!');
+      }
+    };
+
+    // Render tours
+    function renderTours() {
+      const container = document.getElementById('toursContainer');
+      container.innerHTML = tours.map(t => `
+        <div class="bg-white dark:bg-[#1d2a42] rounded-2xl shadow-premium card-hover overflow-hidden">
+          <img src="${t.image}" alt="${t.title}" class="w-full h-44 object-cover" loading="lazy">
+          <div class="p-4">
+            <div class="flex justify-between items-start">
+              <h4 class="font-bold text-ntg-blue dark:text-white">${t.title}</h4>
+              <span class="text-ntg-orange font-bold">৳${t.price}</span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-300"><i class="fas fa-map-pin text-ntg-orange mr-1"></i> ${t.location}</p>
+            <div class="flex flex-wrap text-xs text-gray-500 dark:text-gray-300 gap-3 mt-1">
+              <span><i class="far fa-clock"></i> ${t.duration}</span>
+              <span><i class="far fa-calendar"></i> ${t.date}</span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">${t.desc}</p>
+            <div class="flex gap-2 mt-3">
+              <button onclick="openBooking(${t.id})" class="flex-1 bg-ntg-orange text-white py-2 rounded-xl text-sm font-medium hover:bg-opacity-90 transition"><i class="fas fa-calendar-check mr-1"></i> Book Now</button>
+              <a href="https://wa.me/8801627340487?text=Hello%20NTG,%20I%20want%20to%20book%20${encodeURIComponent(t.title)}" target="_blank" class="flex-1 bg-ntg-blue text-white py-2 rounded-xl text-sm font-medium hover:bg-opacity-90 transition text-center"><i class="fab fa-whatsapp mr-1"></i> WhatsApp</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Upcoming
+      const upcoming = document.getElementById('upcomingContainer');
+      upcoming.innerHTML = tours.slice(0, 2).map(t => `
+        <div class="min-w-[200px] bg-white dark:bg-[#1d2a42] p-4 rounded-2xl shadow-premium">
+          <p class="font-bold text-ntg-blue dark:text-white">${t.title}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-300">${t.date} • ${t.duration}</p>
+          <span class="text-ntg-orange font-bold">৳${t.price}</span>
+          <button onclick="openBooking(${t.id})" class="block mt-2 text-ntg-orange text-sm font-medium"><i class="fas fa-calendar-check mr-1"></i> Book Now</button>
+        </div>
+      `).join('');
+
+      // Admin table
+      const table = document.getElementById('adminToursTable');
+      table.innerHTML = tours.map(t => `
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <td class="p-2"><img src="${t.image}" class="w-12 h-12 object-cover rounded-lg"></td>
+          <td class="p-2">${t.title}</td>
+          <td class="p-2">${t.location}</td>
+          <td class="p-2">৳${t.price}</td>
+          <td class="p-2">
+            <button onclick="editTour(${t.id})" class="text-ntg-orange mr-2"><i class="fas fa-edit"></i></button>
+            <button onclick="deleteTour(${t.id})" class="text-red-500"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('totalTours').textContent = tours.length;
+    }
+
+    // Open booking modal
+    window.openBooking = function(tourId) {
+      const tour = tours.find(t => t.id === tourId);
+      if (tour) {
+        document.getElementById('bookingTourId').value = tourId;
+        document.getElementById('bookingTourName').value = tour.title;
+        document.getElementById('bookingModal').classList.add('active');
+      }
+    };
+
+    // Submit booking
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const booking = {
+        tourId: parseInt(document.getElementById('bookingTourId').value),
+        tourName: document.getElementById('bookingTourName').value,
+        name: document.getElementById('bookingName').value,
+        phone: document.getElementById('bookingPhone').value,
+        people: parseInt(document.getElementById('bookingPeople').value),
+        request: document.getElementById('bookingRequest').value
+      };
+      
+      bookings.push(booking);
+      saveData();
+      renderBookings();
+      document.getElementById('bookingModal').classList.remove('active');
+      this.reset();
+      showToast('Booking submitted successfully!');
+    });
+
+    // Close booking modal
+    document.getElementById('closeBooking').addEventListener('click', function() {
+      document.getElementById('bookingModal').classList.remove('active');
+    });
+
+    // Edit tour
+    window.editTour = function(id) {
+      const tour = tours.find(t => t.id === id);
+      if (tour) {
+        document.getElementById('editTourId').value = id;
+        document.getElementById('tourTitle').value = tour.title;
+        document.getElementById('tourLocation').value = tour.location;
+        document.getElementById('tourDuration').value = tour.duration;
+        document.getElementById('tourDate').value = tour.date;
+        document.getElementById('tourPrice').value = tour.price;
+        document.getElementById('tourDesc').value = tour.desc;
+        document.getElementById('formSubmitText').textContent = 'Update Tour';
+        document.getElementById('tourImage').required = false;
+        if (tour.image) {
+          document.getElementById('imagePreview').innerHTML = `<img src="${tour.image}" class="preview-img" alt="Current">`;
         }
-      });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
 
-      fileInput.addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-          loadImage(this.files[0]);
+    // Delete tour
+    window.deleteTour = function(id) {
+      if (confirm('Delete this tour?')) {
+        tours = tours.filter(t => t.id !== id);
+        saveData();
+        renderTours();
+        showToast('Tour deleted successfully!');
+      }
+    };
+
+    // Add/Update tour
+    document.getElementById('tourForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editTourId').value;
+      const imageFile = document.getElementById('tourImage').files[0];
+      
+      const saveTour = (imageData) => {
+        const tourData = {
+          title: document.getElementById('tourTitle').value,
+          location: document.getElementById('tourLocation').value,
+          duration: document.getElementById('tourDuration').value,
+          date: document.getElementById('tourDate').value,
+          price: parseInt(document.getElementById('tourPrice').value),
+          desc: document.getElementById('tourDesc').value,
+          image: imageData || 'https://picsum.photos/seed/tour' + Date.now() + '/400/250'
+        };
+
+        if (editId) {
+          // Update existing tour
+          const index = tours.findIndex(t => t.id === parseInt(editId));
+          if (index !== -1) {
+            tours[index] = { ...tours[index], ...tourData };
+          }
+          document.getElementById('formSubmitText').textContent = 'Save Tour';
+          document.getElementById('editTourId').value = '';
+          showToast('Tour updated successfully!');
+        } else {
+          // Add new tour
+          tourData.id = nextId++;
+          tours.push(tourData);
+          showToast('Tour added successfully!');
         }
-      });
+        
+        saveData();
+        renderTours();
+        document.getElementById('tourForm').reset();
+        document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('tourImage').required = true;
+      };
 
-      // drag & drop (optional but nice)
-      uploadZone.addEventListener('dragover', (e) => {
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          saveTour(event.target.result);
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        saveTour(null);
+      }
+    });
+
+    // Search
+    document.getElementById('searchBtn').addEventListener('click', function() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = tours.filter(t => t.title.toLowerCase().includes(query) || t.location.toLowerCase().includes(query));
+      const container = document.getElementById('toursContainer');
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="col-span-full text-center text-gray-500">No tours found</p>';
+      } else {
+        container.innerHTML = filtered.map(t => `
+          <div class="bg-white dark:bg-[#1d2a42] rounded-2xl shadow-premium card-hover overflow-hidden">
+            <img src="${t.image}" alt="${t.title}" class="w-full h-44 object-cover" loading="lazy">
+            <div class="p-4">
+              <div class="flex justify-between items-start">
+                <h4 class="font-bold text-ntg-blue dark:text-white">${t.title}</h4>
+                <span class="text-ntg-orange font-bold">৳${t.price}</span>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-300"><i class="fas fa-map-pin text-ntg-orange mr-1"></i> ${t.location}</p>
+              <div class="flex flex-wrap text-xs text-gray-500 dark:text-gray-300 gap-3 mt-1">
+                <span><i class="far fa-clock"></i> ${t.duration}</span>
+                <span><i class="far fa-calendar"></i> ${t.date}</span>
+              </div>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">${t.desc}</p>
+              <div class="flex gap-2 mt-3">
+                <button onclick="openBooking(${t.id})" class="flex-1 bg-ntg-orange text-white py-2 rounded-xl text-sm font-medium hover:bg-opacity-90 transition"><i class="fas fa-calendar-check mr-1"></i> Book Now</button>
+                <a href="https://wa.me/8801627340487?text=Hello%20NTG,%20I%20want%20to%20book%20${encodeURIComponent(t.title)}" target="_blank" class="flex-1 bg-ntg-blue text-white py-2 rounded-xl text-sm font-medium hover:bg-opacity-90 transition text-center"><i class="fab fa-whatsapp mr-1"></i> WhatsApp</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+      showToast(`Found ${filtered.length} tours`);
+    });
+
+    // Admin login
+    const loginModal = document.getElementById('loginModal');
+    document.getElementById('loginBtn').addEventListener('click', () => loginModal.classList.add('active'));
+    document.getElementById('closeLogin').addEventListener('click', () => loginModal.classList.remove('active'));
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pass = document.getElementById('adminPassword').value;
+      if (pass === adminPassword) {
+        loginModal.classList.remove('active');
+        window.location.href = '?admin=true';
+      } else {
+        showToast('Wrong password!');
+      }
+    });
+
+    // Check if admin mode is enabled
+    if (isAdminMode) {
+      // Check if already logged in (session stored in localStorage)
+      const isLoggedIn = localStorage.getItem('ntg_admin_logged_in') === 'true';
+      if (isLoggedIn) {
+        document.getElementById('userPanel').classList.add('hidden');
+        document.getElementById('adminPanel').classList.add('active');
+        document.getElementById('adminName').value = adminName;
+        document.getElementById('profilePic').src = adminProfilePic;
+        document.getElementById('currentPasswordDisplay').value = adminPassword;
+        renderGallery();
+        renderTours();
+        renderBookings();
+      } else {
+        // Show login
+        loginModal.classList.add('active');
+        // If login success, reload with admin mode
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          const pass = document.getElementById('adminPassword').value;
+          if (pass === adminPassword) {
+            localStorage.setItem('ntg_admin_logged_in', 'true');
+            loginModal.classList.remove('active');
+            window.location.href = '?admin=true';
+          } else {
+            showToast('Wrong password!');
+          }
+        });
+      }
+    }
+
+    // Profile modal
+    const profileModal = document.getElementById('profileModal');
+    document.getElementById('profileBtn').addEventListener('click', () => {
+      document.getElementById('adminName').value = adminName;
+      document.getElementById('profilePic').src = adminProfilePic;
+      document.getElementById('currentPasswordDisplay').value = adminPassword;
+      profileModal.classList.add('active');
+    });
+    document.getElementById('closeProfile').addEventListener('click', () => profileModal.classList.remove('active'));
+
+    // Profile update
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      adminName = document.getElementById('adminName').value;
+      const newPass = document.getElementById('newPassword').value;
+      if (newPass && newPass.length > 0) {
+        adminPassword = newPass;
+        document.getElementById('currentPasswordDisplay').value = adminPassword;
+        showToast('Password updated successfully!');
+      } else {
+        showToast('Profile name updated successfully!');
+      }
+      saveData();
+      profileModal.classList.remove('active');
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.removeItem('ntg_admin_logged_in');
+      document.getElementById('adminPanel').classList.remove('active');
+      document.getElementById('userPanel').classList.remove('hidden');
+      window.location.href = '?';
+      showToast('Logged out successfully');
+    });
+
+    // Back to top
+    const backBtn = document.getElementById('backTop');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 300) backBtn.classList.remove('hidden');
+      else backBtn.classList.add('hidden');
+    });
+    backBtn.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+    // Bottom nav
+    document.querySelectorAll('.bottom-nav a').forEach(link => {
+      link.addEventListener('click', function(e) {
         e.preventDefault();
-        uploadZone.style.borderColor = '#a855f7';
-        uploadZone.style.background = 'rgba(168,85,247,0.08)';
+        document.querySelectorAll('.bottom-nav a').forEach(a => a.classList.remove('active'));
+        this.classList.add('active');
+        showToast('Navigating to ' + this.querySelector('span').innerText);
       });
-      uploadZone.addEventListener('dragleave', () => {
-        uploadZone.style.borderColor = 'rgba(168,85,247,0.3)';
-        uploadZone.style.background = 'rgba(0,0,0,0.3)';
-      });
-      uploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadZone.style.borderColor = 'rgba(168,85,247,0.3)';
-        uploadZone.style.background = 'rgba(0,0,0,0.3)';
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          loadImage(e.dataTransfer.files[0]);
-          fileInput.files = e.dataTransfer.files; // sync
-        }
-      });
+    });
 
-      // radius slider
-      radiusSlider.addEventListener('input', function() {
-        const val = parseInt(this.value, 10);
-        setRadius(val);
-      });
+    // Loader
+    setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 400); }, 800);
 
-      // reset
-      resetBtn.addEventListener('click', resetAll);
-
-      // download
-      downloadBtn.addEventListener('click', downloadRounded);
-
-      // init with a subtle default (no image)
-      resetAll();
-
-      // small extra: if user clicks on preview, trigger upload
-      previewImg.addEventListener('click', function() {
-        if (!this.src || this.src === '') {
-          fileInput.click();
-        }
-      });
-
-      // SEO / a11y: set default alt
-      previewImg.alt = 'Narayanganj travel photo preview';
-
-      console.log('✧ Narayanganj Travel Group ready.');
-    })();
-  </script>
+    // Initial render (if not admin mode)
+    if (!isAdminMode) {
+      renderGallery();
+      renderTours();
+    }
+  })();
+</script>
 </body>
 </html>
+```
